@@ -23,6 +23,7 @@
   --accent:#4FC2B9; --on-accent:#0F1A1E; --accent-soft:#183A3A; --gold:#E7B055; --gold-soft:#3A2E17; --danger:#F2867E; color-scheme:dark}}
 *{box-sizing:border-box}
 html,body{margin:0}
+[hidden]{display:none!important}
 body{background:var(--bg);color:var(--ink);font-family:var(--font);font-size:15px;line-height:1.55;
   padding:calc(env(safe-area-inset-top,0px) + 12px) max(16px,env(safe-area-inset-right,0px)) calc(env(safe-area-inset-bottom,0px) + 84px) max(16px,env(safe-area-inset-left,0px))}
 button{font:inherit;cursor:pointer}
@@ -226,7 +227,7 @@ import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager
 import { firebaseConfig } from './config.js';
 import * as L from './logic.js';
 
-const VERSION = '1';
+const VERSION = '2';
 // ?demo = no sign-in, made-up data kept only in memory (for testing on the laptop).
 const DEMO = new URLSearchParams(location.search).has('demo');
 const MONTHS = ['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
