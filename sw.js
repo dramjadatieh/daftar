@@ -1,11 +1,11 @@
 // Opens at once from the cache (also with no internet); the app's own files refresh in the background for the
 // next open (a new release reloads the page once). The Firebase library and fonts are cached after first use.
-const CACHE = 'daftar-v2';
+const CACHE = 'daftar-v3';
 const SHELL = ['./', './index.html', './config.js', './logic.js', './manifest.webmanifest', './icon-180.png', './icon-192.png', './icon-512.png'];
 const CDN = ['www.gstatic.com', 'fonts.googleapis.com', 'fonts.gstatic.com'];
 
 self.addEventListener('install', e => {
-  e.waitUntil(caches.open(CACHE).then(c => c.addAll(SHELL)));
+  e.waitUntil(caches.open(CACHE).then(c => c.addAll(SHELL.map(u => new Request(u, { cache: 'reload' })))));
   self.skipWaiting();
 });
 
@@ -20,7 +20,7 @@ self.addEventListener('fetch', e => {
   const url = new URL(e.request.url);
   if (url.origin === location.origin) {
     e.respondWith(caches.open(CACHE).then(c => c.match(e.request, { ignoreSearch: true }).then(hit => {
-      const net = fetch(e.request).then(res => { if (res.ok) c.put(e.request, res.clone()); return res; });
+      const net = fetch(e.request, { cache: 'no-cache' }).then(res => { if (res.ok) c.put(e.request, res.clone()); return res; });
       if (hit) { e.waitUntil(net.catch(() => {})); return hit; }
       return net.catch(() => c.match('./index.html'));
     })));
