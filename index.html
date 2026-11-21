@@ -47,11 +47,12 @@ h2{font-size:16px;margin:0 0 10px;font-weight:600}
 .stat b{display:block;font-size:17px}.stat small{color:var(--muted);font-size:12px}
 .pay{margin-top:12px;background:var(--gold-soft);border-radius:10px;padding:10px 12px}
 .pay b{color:var(--gold)}
-.estnote{margin-top:8px;font-size:12px;color:var(--muted)}
+.estnote,.insnote{margin-top:8px;font-size:12px;color:var(--muted)}
+.ent .tag{color:var(--accent);font-weight:600}
 label{display:block;font-size:13px;color:var(--muted);margin-bottom:4px}
-input{width:100%;font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+input,select{width:100%;font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
 textarea{width:100%;font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
-input:focus,textarea:focus,button:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+input:focus,select:focus,textarea:focus,button:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
 .row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .form{display:flex;flex-direction:column;gap:10px}
 .chips{display:flex;flex-wrap:wrap;gap:6px}
@@ -110,7 +111,7 @@ td.hit{color:var(--gold);font-weight:600}
     </div>
   </div>
   <div class="card">
-    <div class="of">شغلك هالشهر من الهدف (كل الشغل، بدون خصم)</div>
+    <div class="of">المحسوب هالشهر من الهدف (كاش هالشهر + تأمين انقبض هالشهر، بدون خصم)</div>
     <div class="big"><span class="num" id="net">0</span> <span class="of">/ <span class="num" id="tgt">20,000</span> AED</span></div>
     <div class="bar" id="bar"><i id="barFill" style="width:0%"></i></div>
     <div class="status" id="status">جاري التحميل…</div>
@@ -121,6 +122,7 @@ td.hit{color:var(--gold);font-weight:600}
     </div>
     <div class="pay" id="pay"></div>
     <div class="estnote" id="estNote"></div>
+    <div class="insnote" id="insNote"></div>
   </div>
   <div class="card">
     <h2 id="formTitle">سجّل حالة</h2>
@@ -138,7 +140,15 @@ td.hit{color:var(--gold);font-weight:600}
         <div><label for="fPt">رقم الملف</label><input id="fPt" placeholder="اختياري"></div>
         <div><label for="fLab">مختبر + مواد AED</label><input type="number" id="fLab" inputmode="decimal" min="0" step="any" placeholder="بيهمّ بعد 20,000 بس"></div>
       </div>
-      <div><label for="fNote">ملاحظة</label><input id="fNote" placeholder="اختياري: خصم، تأمين، دفع جزئي…"></div>
+      <div class="row">
+        <div><label for="fPay">الدفع</label><select id="fPay"><option value="cash">كاش أو بطاقة</option><option value="ins">تأمين</option></select></div>
+        <div id="insStBox" hidden><label for="fIns">التأمين</label><select id="fIns"><option value="pending">لسا ما دفع</option><option value="paid">دفع للعيادة</option><option value="rejected">رفض</option></select></div>
+      </div>
+      <div class="row" id="insPaidBox" hidden>
+        <div><label for="fPaidDate">تاريخ ما دفعوا</label><input type="date" id="fPaidDate"></div>
+        <div><label for="fPaidAmt">قديش دفعوا AED</label><input type="number" id="fPaidAmt" inputmode="decimal" min="0" step="any" placeholder="فاضي = كامل المبلغ"></div>
+      </div>
+      <div><label for="fNote">ملاحظة</label><input id="fNote" placeholder="اختياري: خصم، شركة التأمين، رقم المطالبة…"></div>
       <div class="btns">
         <button class="btn" type="submit" id="fSave">سجّل</button>
         <button class="btn ghost" type="button" id="fCancel" hidden>إلغاء التعديل</button>
@@ -150,6 +160,11 @@ td.hit{color:var(--gold);font-weight:600}
     <div class="top" style="margin-bottom:10px"><h2 style="margin:0">تفاصيل الشهر</h2><button class="mini" id="copyBtn" type="button">انسخ الملخص</button></div>
     <div id="list"></div>
     <textarea id="copyBox" rows="6" hidden readonly style="margin-top:10px"></textarea>
+  </div>
+  <div class="card">
+    <h2>تأمين لسا ما دفع</h2>
+    <p class="note" style="margin-top:0">حسب العقد: عمولة حالات التأمين بتنحسب بس لما التأمين يدفع للعيادة، وبتدخل بحساب الشهر اللي دفعوا فيه. لما تعرف إنهم دفعوا اكبس "دفعوا".</p>
+    <div id="insList"></div>
   </div>
   <div class="card">
     <h2>قارن مع العيادة</h2>
@@ -227,7 +242,7 @@ import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager
 import { firebaseConfig } from './config.js';
 import * as L from './logic.js';
 
-const VERSION = '4';
+const VERSION = '5';
 // ?demo = no sign-in, made-up data kept only in memory (for testing on the laptop).
 const DEMO = new URLSearchParams(location.search).has('demo');
 const MONTHS = ['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
@@ -271,7 +286,7 @@ const dayLabel = d => { const [y, m, dd] = d.split('-').map(Number); return WD[n
 const monthList = () => Object.values(DB.entries).filter(e => L.monthOf(e.date) === UI.month);
 
 function renderMonth() {
-  const s = S(), list = monthList(), c = L.calcMonth(list, s);
+  const s = S(), list = monthList(), c = L.calcMonth(Object.values(DB.entries), UI.month, s);
   $('mLabel').textContent = label(UI.month);
   $('net').textContent = fmt0(c.gross); $('tgt').textContent = fmt0(s.target);
   const p = s.target > 0 ? Math.min(100, Math.max(0, c.gross / s.target * 100)) : 0;
@@ -286,6 +301,8 @@ function renderMonth() {
     : `لسا ما في عمولة: بتبلّش بعد ${fmt0(s.target)} من شغلك.<br>معاشك لحد هلأ: <b class="num">${fmt0(s.salary)} AED</b> راتب أساسي`;
   $('estNote').textContent = c.over > 0 ? (c.estCases ? 'منها تقدير ' + fmt0(c.labEst) + ' (' + fmt(s.estPct) + '% على ' + c.estCases + ' حالات خانتها فاضية). اكتب الرقم الحقيقي لما تعرفه.' : '')
     : (c.cases ? 'قبل ' + fmt0(s.target) + ' المختبر والمواد ما إلهم دخل بحسابك.' : '');
+  $('insNote').innerHTML = [c.insIn ? 'منها تأمين انقبض هالشهر: <b class="num">' + fmt0(c.insIn) + '</b> (' + c.insInCases + ' حالات)' : '',
+    c.insWaitThis ? 'تأمين من شغل هالشهر لسا ما انقبض: <b class="num">' + fmt0(c.insWaitThis) + '</b> (ما بينحسب لحد ما يدفعوا)' : ''].filter(Boolean).join('<br>');
 
   const days = {}; list.forEach(e => (days[e.date] = days[e.date] || []).push(e));
   const keys = Object.keys(days).sort().reverse();
@@ -295,10 +312,10 @@ function renderMonth() {
       const tot = items.reduce((t, e) => t + (L.num(e.amount) || 0), 0);
       return `<div class="day"><div class="dayhead"><span>${dayLabel(d)} · ${items.length} حالات</span><span class="num">${fmt0(tot)}</span></div>` +
         items.map(e => {
-          const lab = L.labOf(e, s), f = c.frac[e.id] || 0;
-          const labTxt = f <= 0 ? (lab.est ? '' : (lab.v ? 'مختبر/مواد ' + fmt(lab.v) + ' (قبل الهدف، ما بينخصم)' : ''))
+          const lab = L.labOf(e, s), f = c.frac[e.id] || 0, here = !!L.counted(e, UI.month);
+          const labTxt = f <= 0 ? (lab.est || !lab.v ? '' : 'مختبر/مواد ' + fmt(lab.v) + (here ? ' (قبل الهدف، ما بينخصم)' : ''))
             : (lab.est ? 'مختبر/مواد تقدير ' + fmt0(lab.v * f) : (lab.v ? 'مختبر/مواد ' + fmt(lab.v * f) + (f < 1 ? ' (الجزء فوق الهدف)' : '') : ''));
-          const sub = [e.patient ? 'ملف: ' + e.patient : '', f > 0 ? 'فوق الهدف' : '', labTxt, e.note || ''].filter(Boolean).join(' · ');
+          const sub = [insTxt(e), e.patient ? 'ملف: ' + e.patient : '', f > 0 ? 'فوق الهدف' : '', labTxt, e.note || ''].filter(Boolean).join(' · ');
           const armed = UI.armed === e.id;
           return `<div class="ent"><div class="main"><div class="t">${esc(e.treatment || 'حالة')}</div>${sub ? `<div class="sub">${esc(sub)}</div>` : ''}</div>
             <div class="amt num">${fmt(e.amount)}</div>
@@ -320,6 +337,24 @@ function renderMonth() {
   }
   if (cl !== null && c.over > 0 && cl > c.labAbove + 1) t += (t ? ' ' : '') + 'انتبه: خصموا مختبر ومواد ' + fmt0(cl) + ' وحسابك للحالات فوق الهدف ' + fmt0(c.labAbove) + '. اسألهم إذا خصموا مختبر حالات قبل الـ' + fmt0(s.target) + '.';
   df.textContent = t; df.className = cls;
+}
+
+function insTxt(e) {
+  const st = L.insState(e); if (!st) return '';
+  if (st === 'pending') return 'تأمين: لسا ما دفع';
+  if (st === 'rejected') return 'تأمين: رفض';
+  const pa = L.num(e.paidAmount), part = pa !== null && pa !== L.num(e.amount) ? ' ' + fmt(pa) : '';
+  return 'تأمين: دفع' + part + ' بـ ' + label(L.monthOf(e.paidDate));
+}
+function renderIns() {
+  const s = S(), p = L.pendingIns(Object.values(DB.entries));
+  $('insList').innerHTML = !p.list.length ? `<div class="empty">${UI.loaded ? 'ما في تأمين معلّق.' : 'جاري التحميل…'}</div>`
+    : `<div class="dayhead"><span>${p.list.length} حالات</span><span class="num">${fmt0(p.total)}</span></div>` + p.list.map(e => {
+      const sub = [dayLabel(e.date) + ' ' + e.date.slice(0, 4), e.patient ? 'ملف: ' + e.patient : '', e.note || ''].filter(Boolean).join(' · ');
+      return `<div class="ent"><div class="main"><div class="t">${esc(e.treatment || 'حالة')}</div><div class="sub">${esc(sub)}</div></div>
+        <div class="amt num">${fmt(e.amount)}</div>
+        <div class="acts"><button class="mini" data-paid="${esc(e.id)}">دفعوا</button><button class="mini" data-edit="${esc(e.id)}">عدّل</button></div></div>`;
+    }).join('');
 }
 
 function renderSc() {
@@ -346,7 +381,7 @@ function fillSettings() {
   const s = S();
   for (const [id, k] of [['sSal', 'salary'], ['sTarget', 'target'], ['sPct', 'percent'], ['sEst', 'estPct']]) if (document.activeElement !== $(id)) $(id).value = s[k];
 }
-function render() { renderMonth(); renderSc(); }
+function render() { renderMonth(); renderIns(); renderSc(); }
 
 /* ---------- actions ---------- */
 TX.forEach(t => { const b = document.createElement('button'); b.type = 'button'; b.className = 'chip'; b.textContent = t;
@@ -364,11 +399,20 @@ $('tabs').addEventListener('click', e => {
 function startEdit(e) {
   UI.editing = e.id; $('formTitle').textContent = 'عدّل الحالة'; $('fSave').textContent = 'احفظ التعديل'; $('fCancel').hidden = false;
   $('fDate').value = e.date; $('fAmt').value = e.amount; $('fTx').value = e.treatment || ''; $('fPt').value = e.patient || '';
-  $('fLab').value = L.num(e.lab) ?? ''; $('fNote').value = e.note || ''; $('f').scrollIntoView({ behavior: 'smooth', block: 'center' });
+  $('fLab').value = L.num(e.lab) ?? ''; $('fNote').value = e.note || '';
+  $('fPay').value = L.isIns(e) ? 'ins' : 'cash'; $('fIns').value = L.insState(e) || 'pending';
+  $('fPaidDate').value = e.paidDate || ''; $('fPaidAmt').value = L.num(e.paidAmount) ?? ''; insUI();
+  $('f').scrollIntoView({ behavior: 'smooth', block: 'center' });
 }
+function insUI() {
+  const ins = $('fPay').value === 'ins', paid = ins && $('fIns').value === 'paid';
+  $('insStBox').hidden = !ins; $('insPaidBox').hidden = !paid;
+  if (paid && !$('fPaidDate').value) $('fPaidDate').value = today();
+}
+$('fPay').addEventListener('change', insUI); $('fIns').addEventListener('change', insUI);
 function resetForm() {
   UI.editing = null; $('formTitle').textContent = 'سجّل حالة'; $('fSave').textContent = 'سجّل'; $('fCancel').hidden = true;
-  const d = $('fDate').value || today(); $('f').reset(); $('fDate').value = d;
+  const d = $('fDate').value || today(); $('f').reset(); $('fDate').value = d; insUI();
 }
 $('fCancel').onclick = resetForm;
 $('f').addEventListener('submit', ev => {
@@ -380,6 +424,11 @@ $('f').addEventListener('submit', ev => {
   const e = { id: UI.editing || (Date.now().toString(36) + Math.random().toString(36).slice(2, 6)), date: $('fDate').value, amount,
     lab: L.num($('fLab').value), treatment: $('fTx').value.trim(), patient: $('fPt').value.trim(), note: $('fNote').value.trim(),
     created: old.created || now };
+  if ($('fPay').value === 'ins') {
+    e.pay = 'ins'; e.insStatus = $('fIns').value;
+    e.paidDate = e.insStatus === 'paid' ? ($('fPaidDate').value || today()) : null;
+    e.paidAmount = e.insStatus === 'paid' ? L.num($('fPaidAmt').value) : null;
+  } else e.pay = 'cash';
   if (UI.editing) e.edited = now;
   store.putEntry(e);
   msg.textContent = UI.editing ? 'انحفظ التعديل.' : 'انسجّلت: ' + fmt(amount) + ' AED'; msg.className = 'msg';
@@ -393,6 +442,14 @@ $('list').addEventListener('click', ev => {
     const id = del.dataset.del;
     if (UI.armed === id) { UI.armed = null; store.dropEntry(id); toast('انحذفت'); }
     else { UI.armed = id; renderMonth(); setTimeout(() => { if (UI.armed === id) { UI.armed = null; renderMonth(); } }, 4000); }
+  }
+});
+$('insList').addEventListener('click', ev => {
+  const ed = ev.target.closest('[data-edit]'), pd = ev.target.closest('[data-paid]');
+  if (ed) startEdit(DB.entries[ed.dataset.edit]);
+  if (pd) {
+    const e = Object.assign({}, DB.entries[pd.dataset.paid], { insStatus: 'paid', paidDate: today(), paidAmount: null, edited: new Date().toISOString() });
+    store.putEntry(e); toast('انسجّل إنهم دفعوا اليوم. إذا دفعوا مبلغ أقل اكبس عدّل.');
   }
 });
 function shift(n) { const [y, m] = UI.month.split('-').map(Number); const d = new Date(y, m - 1 + n, 1); UI.month = d.getFullYear() + '-' + pad(d.getMonth() + 1); UI.armed = null; renderMonth(); }
@@ -412,12 +469,15 @@ $('sSave').onclick = () => {
 };
 
 function summary() {
-  const s = S(), list = monthList().sort((a, b) => a.date.localeCompare(b.date) || (a.created || '').localeCompare(b.created || '')), c = L.calcMonth(list, s);
-  const out = ['ملخص شغلي — ' + label(UI.month), 'أيام الدوام: ' + c.days, 'عدد الحالات: ' + c.cases, 'شغلي الكامل: ' + fmt(c.gross) + ' AED',
+  const s = S(), list = monthList().sort((a, b) => a.date.localeCompare(b.date) || (a.created || '').localeCompare(b.created || '')), c = L.calcMonth(Object.values(DB.entries), UI.month, s);
+  const pi = L.pendingIns(Object.values(DB.entries));
+  const out = ['ملخص شغلي — ' + label(UI.month), 'أيام الدوام: ' + c.days, 'عدد الحالات: ' + c.cases, 'شغلي الكامل هالشهر: ' + fmt(c.work) + ' AED',
+    'المحسوب للعمولة (كاش + تأمين انقبض): ' + fmt(c.gross) + ' AED' + (c.insIn ? ' (منها تأمين ' + fmt(c.insIn) + ')' : ''),
+    'تأمين لسا ما دفع (كل الشهور): ' + fmt(pi.total) + ' AED',
     'الهدف: ' + fmt(s.target) + ' AED', c.over > 0 ? 'فوق الهدف: ' + fmt(c.over) + ' AED' : 'باقي للهدف: ' + fmt(c.remaining) + ' AED',
     'مختبر ومواد حالات فوق الهدف: ' + fmt(c.labAbove) + ' AED' + (c.estCases ? ' (منها ' + fmt(c.labEst) + ' تقدير)' : ''), 'بتنحسب عليه النسبة: ' + fmt(c.base) + ' AED',
     'العمولة ' + fmt(s.percent) + '%: ' + fmt(c.comm) + ' AED', 'الراتب الأساسي: ' + fmt(s.salary) + ' AED', 'المعاش المتوقع: ' + fmt(c.pay) + ' AED', '', 'التفاصيل:'];
-  list.forEach(e => { const l = L.labOf(e, s); out.push(e.date + ' | ' + fmt(e.amount) + ' | ' + (e.treatment || 'حالة') + (e.patient ? ' | ملف ' + e.patient : '') + (l.est ? '' : l.v ? ' | مختبر/مواد ' + fmt(l.v) : '') + (e.note ? ' | ' + e.note : '')); });
+  list.forEach(e => { const l = L.labOf(e, s); out.push(e.date + ' | ' + fmt(e.amount) + ' | ' + (e.treatment || 'حالة') + (e.patient ? ' | ملف ' + e.patient : '') + (l.est ? '' : l.v ? ' | مختبر/مواد ' + fmt(l.v) : '') + (insTxt(e) ? ' | ' + insTxt(e) : '') + (e.note ? ' | ' + e.note : '')); });
   return out.join('\n');
 }
 $('copyBtn').onclick = () => {
