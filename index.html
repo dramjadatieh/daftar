@@ -110,12 +110,12 @@ td.hit{color:var(--gold);font-weight:600}
     </div>
   </div>
   <div class="card">
-    <div class="of">صافي الشهر (بعد المختبر والمواد) من الهدف</div>
+    <div class="of">شغلك هالشهر من الهدف (كل الشغل، بدون خصم)</div>
     <div class="big"><span class="num" id="net">0</span> <span class="of">/ <span class="num" id="tgt">20,000</span> AED</span></div>
     <div class="bar" id="bar"><i id="barFill" style="width:0%"></i></div>
     <div class="status" id="status">جاري التحميل…</div>
     <div class="stats">
-      <div class="stat"><b class="num" id="sGross">0</b><small>شغلك الكامل</small></div>
+      <div class="stat"><b class="num" id="sGross">0</b><small>فوق الهدف</small></div>
       <div class="stat"><b class="num" id="sDays">0</b><small>أيام دوام</small></div>
       <div class="stat"><b class="num" id="sCases">0</b><small>حالات</small></div>
     </div>
@@ -136,7 +136,7 @@ td.hit{color:var(--gold);font-weight:600}
       </div>
       <div class="row">
         <div><label for="fPt">رقم الملف</label><input id="fPt" placeholder="اختياري"></div>
-        <div><label for="fLab">مختبر + مواد AED</label><input type="number" id="fLab" inputmode="decimal" min="0" step="any" placeholder="فاضي = تقدير"></div>
+        <div><label for="fLab">مختبر + مواد AED</label><input type="number" id="fLab" inputmode="decimal" min="0" step="any" placeholder="بيهمّ بعد 20,000 بس"></div>
       </div>
       <div><label for="fNote">ملاحظة</label><input id="fNote" placeholder="اختياري: خصم، تأمين، دفع جزئي…"></div>
       <div class="btns">
@@ -154,8 +154,8 @@ td.hit{color:var(--gold);font-weight:600}
   <div class="card">
     <h2>قارن مع العيادة</h2>
     <div class="row">
-      <div><label for="cTotal">صافي العيادة للشهر AED</label><input type="number" id="cTotal" inputmode="decimal" min="0" step="any" placeholder="من تقريرهم"></div>
-      <div><label for="cLab">مختبر ومواد حسب العيادة</label><input type="number" id="cLab" inputmode="decimal" min="0" step="any" placeholder="اختياري"></div>
+      <div><label for="cTotal">شغلك حسب العيادة AED</label><input type="number" id="cTotal" inputmode="decimal" min="0" step="any" placeholder="من تقريرهم"></div>
+      <div><label for="cLab">مختبر ومواد خصموها</label><input type="number" id="cLab" inputmode="decimal" min="0" step="any" placeholder="اختياري"></div>
     </div>
     <div class="diff" id="diff"></div>
   </div>
@@ -167,7 +167,7 @@ td.hit{color:var(--gold);font-weight:600}
     <h2>شو لو اشتغلت…</h2>
     <div class="row">
       <div><label for="scG">شغلك بالشهر AED</label><input type="number" id="scG" inputmode="decimal" min="0" step="any" value="30000"></div>
-      <div><label for="scL">مختبر ومواد %</label><input type="number" id="scL" inputmode="decimal" min="0" max="99" step="any"></div>
+      <div><label for="scL">مختبر ومواد % (من الشغل فوق الهدف)</label><input type="number" id="scL" inputmode="decimal" min="0" max="99" step="any"></div>
     </div>
     <div class="res" id="scRes"></div>
   </div>
@@ -175,12 +175,12 @@ td.hit{color:var(--gold);font-weight:600}
     <h2>بدي معاش قديش؟</h2>
     <div class="row">
       <div><label for="gwP">المعاش اللي بدك ياه AED</label><input type="number" id="gwP" inputmode="decimal" min="0" step="any" value="8000"></div>
-      <div><label for="gwL">مختبر ومواد %</label><input type="number" id="gwL" inputmode="decimal" min="0" max="99" step="any"></div>
+      <div><label for="gwL">مختبر ومواد % (من الشغل فوق الهدف)</label><input type="number" id="gwL" inputmode="decimal" min="0" max="99" step="any"></div>
     </div>
     <div class="res" id="gwRes"></div>
   </div>
   <div class="card full">
-    <h2>جدول سريع: معاشك حسب شغلك ونسبة المختبر والمواد</h2>
+    <h2>جدول سريع: معاشك حسب شغلك ونسبة المختبر والمواد فوق الهدف</h2>
     <div class="tbl"><table id="grid"></table></div>
     <p class="note">كل خانة = الراتب + العمولة. الذهبي = في عمولة.</p>
   </div>
@@ -199,7 +199,7 @@ td.hit{color:var(--gold);font-weight:600}
         <div><label for="sPct">نسبتي فوق الهدف %</label><input type="number" id="sPct" inputmode="decimal" min="0" max="100" step="any"></div>
         <div><label for="sEst">تقدير المختبر والمواد %</label><input type="number" id="sEst" inputmode="decimal" min="0" max="99" step="any"></div>
       </div>
-      <p class="note">التقدير بينحسب بس على الحالات اللي خانة "مختبر + مواد" فيها فاضية. لما تعرف الرقم الحقيقي حطّه بالحالة، أو صغّر وكبّر النسبة لحد ما يطابق تقرير العيادة.</p>
+      <p class="note">الهدف بينحسب على كل شغلك بدون خصم. المختبر والمواد بينخصموا بس من الشغل اللي فوق الهدف. التقدير بينحسب بس على حالات فوق الهدف خانة "مختبر + مواد" فيها فاضية.</p>
       <button class="btn ghost" type="button" id="sSave">احفظ</button>
       <div class="msg" id="sMsg"></div>
     </div>
@@ -227,7 +227,7 @@ import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager
 import { firebaseConfig } from './config.js';
 import * as L from './logic.js';
 
-const VERSION = '3';
+const VERSION = '4';
 // ?demo = no sign-in, made-up data kept only in memory (for testing on the laptop).
 const DEMO = new URLSearchParams(location.search).has('demo');
 const MONTHS = ['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
@@ -273,18 +273,19 @@ const monthList = () => Object.values(DB.entries).filter(e => L.monthOf(e.date) 
 function renderMonth() {
   const s = S(), list = monthList(), c = L.calcMonth(list, s);
   $('mLabel').textContent = label(UI.month);
-  $('net').textContent = fmt0(c.net); $('tgt').textContent = fmt0(s.target);
-  const p = s.target > 0 ? Math.min(100, Math.max(0, c.net / s.target * 100)) : 0;
+  $('net').textContent = fmt0(c.gross); $('tgt').textContent = fmt0(s.target);
+  const p = s.target > 0 ? Math.min(100, Math.max(0, c.gross / s.target * 100)) : 0;
   $('barFill').style.width = p + '%'; $('bar').classList.toggle('over', c.over > 0);
   const st = $('status');
   if (!UI.loaded) { st.textContent = 'جاري التحميل…'; st.className = 'status'; }
   else if (c.over > 0) { st.textContent = 'تعدّيت الهدف بـ ' + fmt0(c.over) + ' AED'; st.className = 'status over'; }
-  else { st.textContent = 'باقيلك ' + fmt0(c.remaining) + ' AED وبتبلّش العمولة (' + Math.round(p) + '%)'; st.className = 'status'; }
-  $('sGross').textContent = fmt0(c.gross); $('sDays').textContent = c.days; $('sCases').textContent = c.cases;
+  else { st.textContent = 'باقيلك ' + fmt0(c.remaining) + ' AED لتبلّش العمولة'; st.className = 'status'; }
+  $('sGross').textContent = fmt0(c.over); $('sDays').textContent = c.days; $('sCases').textContent = c.cases;
   $('pay').innerHTML = c.over > 0
-    ? `عمولتك: <b class="num">${fmt0(c.comm)} AED</b> (${fmt(s.percent)}% من ${fmt0(c.over)})<br>معاشك المتوقع: <b class="num">${fmt0(c.pay)} AED</b> = راتب ${fmt0(s.salary)} + عمولة`
-    : `لسا ما في عمولة: بتبلّش بعد ${fmt0(s.target)} صافي.<br>معاشك لحد هلأ: <b class="num">${fmt0(s.salary)} AED</b> راتب أساسي`;
-  $('estNote').textContent = c.cases ? ('المختبر والمواد: ' + fmt0(c.lab) + ' AED' + (c.estCases ? ' (منها ' + fmt0(c.labEst) + ' تقدير ' + fmt(s.estPct) + '% على ' + c.estCases + ' حالات)' : '')) : '';
+    ? `فوق الهدف ${fmt0(c.over)} − مختبر ومواد ${fmt0(c.labAbove)} = <b class="num">${fmt0(c.base)}</b><br>عمولتك ${fmt(s.percent)}%: <b class="num">${fmt0(c.comm)} AED</b><br>معاشك المتوقع: <b class="num">${fmt0(c.pay)} AED</b> = راتب ${fmt0(s.salary)} + عمولة`
+    : `لسا ما في عمولة: بتبلّش بعد ${fmt0(s.target)} من شغلك.<br>معاشك لحد هلأ: <b class="num">${fmt0(s.salary)} AED</b> راتب أساسي`;
+  $('estNote').textContent = c.over > 0 ? (c.estCases ? 'منها تقدير ' + fmt0(c.labEst) + ' (' + fmt(s.estPct) + '% على ' + c.estCases + ' حالات خانتها فاضية). اكتب الرقم الحقيقي لما تعرفه.' : '')
+    : (c.cases ? 'قبل ' + fmt0(s.target) + ' المختبر والمواد ما إلهم دخل بحسابك.' : '');
 
   const days = {}; list.forEach(e => (days[e.date] = days[e.date] || []).push(e));
   const keys = Object.keys(days).sort().reverse();
@@ -294,8 +295,10 @@ function renderMonth() {
       const tot = items.reduce((t, e) => t + (L.num(e.amount) || 0), 0);
       return `<div class="day"><div class="dayhead"><span>${dayLabel(d)} · ${items.length} حالات</span><span class="num">${fmt0(tot)}</span></div>` +
         items.map(e => {
-          const lab = L.labOf(e, s);
-          const sub = [e.patient ? 'ملف: ' + e.patient : '', lab.est ? 'مختبر/مواد تقدير ' + fmt0(lab.v) : (lab.v ? 'مختبر/مواد ' + fmt(lab.v) : ''), e.note || ''].filter(Boolean).join(' · ');
+          const lab = L.labOf(e, s), f = c.frac[e.id] || 0;
+          const labTxt = f <= 0 ? (lab.est ? '' : (lab.v ? 'مختبر/مواد ' + fmt(lab.v) + ' (قبل الهدف، ما بينخصم)' : ''))
+            : (lab.est ? 'مختبر/مواد تقدير ' + fmt0(lab.v * f) : (lab.v ? 'مختبر/مواد ' + fmt(lab.v * f) + (f < 1 ? ' (الجزء فوق الهدف)' : '') : ''));
+          const sub = [e.patient ? 'ملف: ' + e.patient : '', f > 0 ? 'فوق الهدف' : '', labTxt, e.note || ''].filter(Boolean).join(' · ');
           const armed = UI.armed === e.id;
           return `<div class="ent"><div class="main"><div class="t">${esc(e.treatment || 'حالة')}</div>${sub ? `<div class="sub">${esc(sub)}</div>` : ''}</div>
             <div class="amt num">${fmt(e.amount)}</div>
@@ -308,14 +311,14 @@ function renderMonth() {
   const df = $('diff'), ct = L.num(mo.clinicTotal), cl = L.num(mo.clinicLab);
   let t = '', cls = 'diff';
   if (ct !== null) {
-    const d = c.net - ct;
-    if (Math.abs(d) < 1) { t = 'الصافي مطابق لحسابك.'; cls = 'diff ok'; }
+    const d = c.gross - ct;
+    if (Math.abs(d) < 1) { t = 'شغلك مطابق لحسابك.'; cls = 'diff ok'; }
     else if (d > 0) { t = 'حسابك أعلى من العيادة بـ ' + fmt(d) + ' AED. راجع معهم الحالات.'; cls = 'diff bad'; }
     else t = 'العيادة أعلى من حسابك بـ ' + fmt(-d) + ' AED. يمكن نسيت تسجّل حالة.';
-    const cp = L.payFor(ct, s);
-    t += ' حسب رقمهم معاشك ' + fmt0(cp.pay) + ' AED.';
+    const cp = L.payFor(ct, cl ?? 0, s);
+    t += ' حسب أرقامهم معاشك ' + fmt0(cp.pay) + ' AED.';
   }
-  if (cl !== null && c.gross > 0) t += (t ? ' ' : '') + 'مختبرهم وموادهم = ' + fmt(cl / c.gross * 100) + '% من شغلك (حط هالرقم بالتقدير).';
+  if (cl !== null && c.over > 0 && cl > c.labAbove + 1) t += (t ? ' ' : '') + 'انتبه: خصموا مختبر ومواد ' + fmt0(cl) + ' وحسابك للحالات فوق الهدف ' + fmt0(c.labAbove) + '. اسألهم إذا خصموا مختبر حالات قبل الـ' + fmt0(s.target) + '.';
   df.textContent = t; df.className = cls;
 }
 
@@ -324,16 +327,16 @@ function renderSc() {
   for (const id of ['scL', 'gwL']) if ($(id).value === '' && document.activeElement !== $(id)) $(id).value = s.estPct;
   const g = L.num($('scG').value) || 0, lp = L.num($('scL').value) ?? s.estPct;
   const r = L.scenario(g, lp, s);
-  $('scRes').innerHTML = `<span>المختبر والمواد</span><span class="num">${fmt0(r.lab)}</span>
-    <span>الصافي</span><span class="num">${fmt0(r.net)}</span>
-    <span>فوق الهدف</span><span class="num">${fmt0(r.over)}</span>
+  $('scRes').innerHTML = `<span>فوق الهدف</span><span class="num">${fmt0(r.over)}</span>
+    <span>مختبر ومواد عليه</span><span class="num">${fmt0(r.labAbove)}</span>
+    <span>بتاخد عليه نسبة</span><span class="num">${fmt0(r.base)}</span>
     <span>العمولة ${fmt(s.percent)}%</span><span class="num">${fmt0(r.comm)}</span>
     <span>معاشك</span><span class="num tot">${fmt0(r.pay)} AED</span>`;
   const want = L.num($('gwP').value) || 0, gl = L.num($('gwL').value) ?? s.estPct, need = L.grossFor(want, gl, s);
   $('gwRes').innerHTML = need === null ? `<span>الراتب لحاله بيغطّيها</span><span class="num tot">${fmt0(s.salary)}</span>`
     : !isFinite(need) ? '<span>ما بتزبط بهالأرقام</span><span></span>'
     : `<span>لازم تشتغل تقريباً</span><span class="num tot">${fmt0(need)} AED</span>
-       <span>يعني صافي</span><span class="num">${fmt0(need * (1 - gl / 100))}</span>`;
+       <span>يعني فوق الهدف</span><span class="num">${fmt0(need - s.target)}</span>`;
   const G = [20000, 25000, 30000, 35000, 40000, 50000], P = [0, 10, 20, 30];
   $('grid').innerHTML = `<tr><th>شغلك ⟵ / مختبر ومواد</th>${P.map(p => `<th>${p}%</th>`).join('')}</tr>` +
     G.map(g => `<tr><td class="g num">${fmt0(g)}</td>${P.map(p => { const x = L.scenario(g, p, s); return `<td class="num${x.over > 0 ? ' hit' : ''}">${fmt0(x.pay)}</td>`; }).join('')}</tr>`).join('');
@@ -411,8 +414,8 @@ $('sSave').onclick = () => {
 function summary() {
   const s = S(), list = monthList().sort((a, b) => a.date.localeCompare(b.date) || (a.created || '').localeCompare(b.created || '')), c = L.calcMonth(list, s);
   const out = ['ملخص شغلي — ' + label(UI.month), 'أيام الدوام: ' + c.days, 'عدد الحالات: ' + c.cases, 'شغلي الكامل: ' + fmt(c.gross) + ' AED',
-    'المختبر والمواد: ' + fmt(c.lab) + ' AED' + (c.estCases ? ' (منها ' + fmt(c.labEst) + ' تقدير)' : ''), 'الصافي: ' + fmt(c.net) + ' AED',
     'الهدف: ' + fmt(s.target) + ' AED', c.over > 0 ? 'فوق الهدف: ' + fmt(c.over) + ' AED' : 'باقي للهدف: ' + fmt(c.remaining) + ' AED',
+    'مختبر ومواد حالات فوق الهدف: ' + fmt(c.labAbove) + ' AED' + (c.estCases ? ' (منها ' + fmt(c.labEst) + ' تقدير)' : ''), 'بتنحسب عليه النسبة: ' + fmt(c.base) + ' AED',
     'العمولة ' + fmt(s.percent) + '%: ' + fmt(c.comm) + ' AED', 'الراتب الأساسي: ' + fmt(s.salary) + ' AED', 'المعاش المتوقع: ' + fmt(c.pay) + ' AED', '', 'التفاصيل:'];
   list.forEach(e => { const l = L.labOf(e, s); out.push(e.date + ' | ' + fmt(e.amount) + ' | ' + (e.treatment || 'حالة') + (e.patient ? ' | ملف ' + e.patient : '') + (l.est ? '' : l.v ? ' | مختبر/مواد ' + fmt(l.v) : '') + (e.note ? ' | ' + e.note : '')); });
   return out.join('\n');
