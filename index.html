@@ -138,7 +138,7 @@ td.hit{color:var(--gold);font-weight:600}
       </div>
       <div class="row">
         <div><label for="fPt">رقم الملف</label><input id="fPt" placeholder="اختياري"></div>
-        <div><label for="fLab">مختبر + مواد AED</label><input type="number" id="fLab" inputmode="decimal" min="0" step="any" placeholder="بيهمّ بعد 20,000 بس"></div>
+        <div><label for="fLab">مختبر AED</label><input type="number" id="fLab" inputmode="decimal" min="0" step="any" placeholder="فاضي = ما في مختبر"><div class="chips" id="labChips" style="margin-top:6px"></div></div>
       </div>
       <div class="row">
         <div><label for="fPay">الدفع</label><select id="fPay"><option value="cash">كاش أو بطاقة</option><option value="ins">تأمين</option></select></div>
@@ -212,9 +212,13 @@ td.hit{color:var(--gold);font-weight:600}
       </div>
       <div class="row">
         <div><label for="sPct">نسبتي فوق الهدف %</label><input type="number" id="sPct" inputmode="decimal" min="0" max="100" step="any"></div>
-        <div><label for="sEst">تقدير المختبر والمواد %</label><input type="number" id="sEst" inputmode="decimal" min="0" max="99" step="any"></div>
+        <div><label for="sEst">مختبر متوقع للسيناريوهات %</label><input type="number" id="sEst" inputmode="decimal" min="0" max="99" step="any"></div>
       </div>
-      <p class="note">الهدف بينحسب على كل شغلك بدون خصم. المختبر والمواد بينخصموا بس من الشغل اللي فوق الهدف. التقدير بينحسب بس على حالات فوق الهدف خانة "مختبر + مواد" فيها فاضية.</p>
+      <div class="row">
+        <div><label for="sPfm">مختبر PFM AED</label><input type="number" id="sPfm" inputmode="decimal" min="0" step="any"></div>
+        <div><label for="sZr">مختبر زركون AED</label><input type="number" id="sZr" inputmode="decimal" min="0" step="any"></div>
+      </div>
+      <p class="note">الهدف بينحسب على كل شغلك بدون خصم. لما توصل الهدف ما في خصم مواد، بس المختبر بينخصم من الشغل اللي فوق الهدف. خانة المختبر الفاضية = ما في مختبر.</p>
       <button class="btn ghost" type="button" id="sSave">احفظ</button>
       <div class="msg" id="sMsg"></div>
     </div>
@@ -242,7 +246,7 @@ import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager
 import { firebaseConfig } from './config.js';
 import * as L from './logic.js';
 
-const VERSION = '5';
+const VERSION = '6';
 // ?demo = no sign-in, made-up data kept only in memory (for testing on the laptop).
 const DEMO = new URLSearchParams(location.search).has('demo');
 const MONTHS = ['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
@@ -297,10 +301,10 @@ function renderMonth() {
   else { st.textContent = 'باقيلك ' + fmt0(c.remaining) + ' AED لتبلّش العمولة'; st.className = 'status'; }
   $('sGross').textContent = fmt0(c.over); $('sDays').textContent = c.days; $('sCases').textContent = c.cases;
   $('pay').innerHTML = c.over > 0
-    ? `فوق الهدف ${fmt0(c.over)} − مختبر ومواد ${fmt0(c.labAbove)} = <b class="num">${fmt0(c.base)}</b><br>عمولتك ${fmt(s.percent)}%: <b class="num">${fmt0(c.comm)} AED</b><br>معاشك المتوقع: <b class="num">${fmt0(c.pay)} AED</b> = راتب ${fmt0(s.salary)} + عمولة`
+    ? `فوق الهدف ${fmt0(c.over)} − مختبر ${fmt0(c.labAbove)} = <b class="num">${fmt0(c.base)}</b><br>عمولتك ${fmt(s.percent)}%: <b class="num">${fmt0(c.comm)} AED</b><br>معاشك المتوقع: <b class="num">${fmt0(c.pay)} AED</b> = راتب ${fmt0(s.salary)} + عمولة`
     : `لسا ما في عمولة: بتبلّش بعد ${fmt0(s.target)} من شغلك.<br>معاشك لحد هلأ: <b class="num">${fmt0(s.salary)} AED</b> راتب أساسي`;
   $('estNote').textContent = c.over > 0 ? (c.estCases ? 'منها تقدير ' + fmt0(c.labEst) + ' (' + fmt(s.estPct) + '% على ' + c.estCases + ' حالات خانتها فاضية). اكتب الرقم الحقيقي لما تعرفه.' : '')
-    : (c.cases ? 'قبل ' + fmt0(s.target) + ' المختبر والمواد ما إلهم دخل بحسابك.' : '');
+    : (c.cases ? 'قبل ' + fmt0(s.target) + ' المختبر ما إله دخل بحسابك.' : '');
   $('insNote').innerHTML = [c.insIn ? 'منها تأمين انقبض هالشهر: <b class="num">' + fmt0(c.insIn) + '</b> (' + c.insInCases + ' حالات)' : '',
     c.insWaitThis ? 'تأمين من شغل هالشهر لسا ما انقبض: <b class="num">' + fmt0(c.insWaitThis) + '</b> (ما بينحسب لحد ما يدفعوا)' : ''].filter(Boolean).join('<br>');
 
@@ -363,7 +367,7 @@ function renderSc() {
   const g = L.num($('scG').value) || 0, lp = L.num($('scL').value) ?? s.estPct;
   const r = L.scenario(g, lp, s);
   $('scRes').innerHTML = `<span>فوق الهدف</span><span class="num">${fmt0(r.over)}</span>
-    <span>مختبر ومواد عليه</span><span class="num">${fmt0(r.labAbove)}</span>
+    <span>مختبر عليه</span><span class="num">${fmt0(r.labAbove)}</span>
     <span>بتاخد عليه نسبة</span><span class="num">${fmt0(r.base)}</span>
     <span>العمولة ${fmt(s.percent)}%</span><span class="num">${fmt0(r.comm)}</span>
     <span>معاشك</span><span class="num tot">${fmt0(r.pay)} AED</span>`;
@@ -379,7 +383,8 @@ function renderSc() {
 
 function fillSettings() {
   const s = S();
-  for (const [id, k] of [['sSal', 'salary'], ['sTarget', 'target'], ['sPct', 'percent'], ['sEst', 'estPct']]) if (document.activeElement !== $(id)) $(id).value = s[k];
+  for (const [id, k] of [['sSal', 'salary'], ['sTarget', 'target'], ['sPct', 'percent'], ['sEst', 'estPct'], ['sPfm', 'labPfm'], ['sZr', 'labZr']]) if (document.activeElement !== $(id)) $(id).value = s[k];
+  labChips();
 }
 function render() { renderMonth(); renderIns(); renderSc(); }
 
@@ -387,6 +392,14 @@ function render() { renderMonth(); renderIns(); renderSc(); }
 TX.forEach(t => { const b = document.createElement('button'); b.type = 'button'; b.className = 'chip'; b.textContent = t;
   b.onclick = () => { const v = $('fTx').value.trim(); $('fTx').value = v ? v + ' + ' + t : t; }; $('chips').appendChild(b); });
 $('fDate').value = today();
+function labChips() {
+  const s = S(), box = $('labChips'); box.innerHTML = '';
+  for (const [t, v] of [['PFM ' + fmt(s.labPfm), s.labPfm], ['زركون ' + fmt(s.labZr), s.labZr], ['مسح', null]]) {
+    const b = document.createElement('button'); b.type = 'button'; b.className = 'chip'; b.textContent = t;
+    b.onclick = () => { $('fLab').value = v === null ? '' : (L.num($('fLab').value) || 0) + v; }; box.appendChild(b);
+  }
+}
+labChips();
 
 $('tabs').addEventListener('click', e => {
   const b = e.target.closest('button[data-tab]'); if (!b) return;
@@ -464,7 +477,7 @@ for (const id of ['scG', 'scL', 'gwP', 'gwL']) $(id).addEventListener('input', r
 
 $('sSave').onclick = () => {
   const settings = {};
-  for (const [id, k] of [['sSal', 'salary'], ['sTarget', 'target'], ['sPct', 'percent'], ['sEst', 'estPct']]) settings[k] = L.num($(id).value) ?? L.DEF[k];
+  for (const [id, k] of [['sSal', 'salary'], ['sTarget', 'target'], ['sPct', 'percent'], ['sEst', 'estPct'], ['sPfm', 'labPfm'], ['sZr', 'labZr']]) settings[k] = L.num($(id).value) ?? L.DEF[k];
   store.putMeta({ settings }); $('sMsg').textContent = 'انحفظت.'; $('scL').value = ''; $('gwL').value = ''; render();
 };
 

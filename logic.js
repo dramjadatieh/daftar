@@ -7,7 +7,9 @@
 //    A case that crosses the line counts for the part above it, with the same share of its lab.
 //  - Insurance cases (pay:'ins') count only when the insurer has paid the clinic: in the month of paidDate, for
 //    paidAmount (default = amount). Pending or rejected insurance counts nowhere. Cash cases count in their own month.
-export const DEF = { target: 20000, percent: 30, salary: 5000, estPct: 15 };
+// Clinic (24-11): no materials deduction once he reaches the target, only the lab. Lab: PFM 80, zirconia 150.
+// An empty lab field = no lab (0). estPct is only the default lab % for the scenarios tab.
+export const DEF = { target: 20000, percent: 30, salary: 5000, estPct: 5, labPfm: 80, labZr: 150 };
 
 export const num = v => (v === null || v === undefined || v === '' || isNaN(Number(v))) ? null : Number(v);
 export const settingsOf = s => {
@@ -19,11 +21,9 @@ export const monthOf = d => String(d || '').slice(0, 7);
 export const isIns = e => e && e.pay === 'ins';
 export const insState = e => !isIns(e) ? null : (e.insStatus === 'paid' && e.paidDate) ? 'paid' : e.insStatus === 'rejected' ? 'rejected' : 'pending';
 
-// Lab + materials of one case: the real number when he typed one (0 included), otherwise the estimate %.
+// Lab fee of one case (empty = no lab).
 export function labOf(e, s) {
-  const real = num(e.lab);
-  if (real !== null) return { v: real, est: false };
-  return { v: (num(e.amount) || 0) * s.estPct / 100, est: true };
+  return { v: num(e.lab) || 0, est: false };
 }
 
 // What a case adds to month <ym>'s eligible income: { amt, when } or null.
